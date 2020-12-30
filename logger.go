@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	_atom   = zap.NewAtomicLevel()
-	_logger *zap.SugaredLogger
+	_atom    = zap.NewAtomicLevel()
+	_slogger *zap.SugaredLogger
+	_logger  *zap.Logger
 )
 
 func init() {
@@ -43,63 +44,100 @@ func init() {
 		zapcore.NewJSONEncoder(encoderCfg),
 		zapcore.Lock(os.Stdout),
 		_atom,
-	)).Sugar()
+	))
+	_slogger = _logger.Sugar()
 }
 
-func Debug(msg string, kvs ...interface{}) {
-	_logger.Debugw(msg, kvs...)
+func Debug(args ...interface{}) {
+	_slogger.Debug(args...)
+}
+
+func Debugw(msg string, kvs ...interface{}) {
+	_slogger.Debugw(msg, kvs...)
 }
 
 func Debugf(msg string, args ...interface{}) {
-	_logger.Debugf(msg, args...)
+	_slogger.Debugf(msg, args...)
 }
 
-func Info(msg string, kvs ...interface{}) {
-	_logger.Infow(msg, kvs...)
+func Info(args ...interface{}) {
+	_slogger.Info(args...)
+}
+
+func Infow(msg string, kvs ...interface{}) {
+	_slogger.Infow(msg, kvs...)
 }
 
 func Infof(msg string, args ...interface{}) {
-	_logger.Infof(msg, args...)
+	_slogger.Infof(msg, args...)
 }
 
-func Warn(msg string, kvs ...interface{}) {
-	_logger.Warnw(msg, kvs...)
+func Warn(args ...interface{}) {
+	_slogger.Warn(args...)
+}
+
+func Warnw(msg string, kvs ...interface{}) {
+	_slogger.Warnw(msg, kvs...)
 }
 
 func Warnf(msg string, args ...interface{}) {
-	_logger.Warnf(msg, args...)
+	_slogger.Warnf(msg, args...)
 }
 
-func Error(msg string, kvs ...interface{}) {
-	_logger.Errorw(msg, kvs...)
+func Error(args ...interface{}) {
+	_slogger.Error(args...)
+}
+
+func Errorw(msg string, kvs ...interface{}) {
+	_slogger.Errorw(msg, kvs...)
 }
 
 func Errorf(msg string, args ...interface{}) {
-	_logger.Errorf(msg, args...)
+	_slogger.Errorf(msg, args...)
 }
 
-func DPanic(msg string, kvs ...interface{}) {
-	_logger.DPanicw(msg, kvs...)
+func DPanic(args ...interface{}) {
+	_slogger.DPanic(args...)
+}
+
+func DPanicw(msg string, kvs ...interface{}) {
+	_slogger.DPanicw(msg, kvs...)
 }
 
 func DPanicf(msg string, args ...interface{}) {
-	_logger.DPanicf(msg, args...)
+	_slogger.DPanicf(msg, args...)
 }
 
-func Panic(msg string, kvs ...interface{}) {
-	_logger.Panicw(msg, kvs...)
+func Panic(args ...interface{}) {
+	_slogger.Panic(args...)
+}
+
+func Panicw(msg string, kvs ...interface{}) {
+	_slogger.Panicw(msg, kvs...)
 }
 
 func Panicf(msg string, args ...interface{}) {
-	_logger.Panicf(msg, args...)
+	_slogger.Panicf(msg, args...)
 }
 
-func Fatal(msg string, kvs ...interface{}) {
-	_logger.Fatalw(msg, kvs...)
+func Fatal(args ...interface{}) {
+	_slogger.Fatal(args...)
+}
+
+func Fatalw(msg string, kvs ...interface{}) {
+	_slogger.Fatalw(msg, kvs...)
 }
 
 func Fatalf(msg string, args ...interface{}) {
-	_logger.Fatalf(msg, args...)
+	_slogger.Fatalf(msg, args...)
+}
+
+func Named(s string) *zap.SugaredLogger {
+	return _slogger.Named(s)
+}
+
+func With(args ...interface{}) *zap.SugaredLogger {
+	return _slogger.With(args...)
 }
 
 func HttpHandler() http.Handler {
@@ -107,9 +145,9 @@ func HttpHandler() http.Handler {
 }
 
 func Sync() {
-	_logger.Sync()
+	_slogger.Sync()
 }
 
-func Instance() *zap.SugaredLogger {
+func Logger() *zap.Logger {
 	return _logger
 }
