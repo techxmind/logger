@@ -109,3 +109,7 @@ func HttpHandler() http.Handler {
 func Sync() {
 	_logger.Sync()
 }
+
+func Instance() *zap.SugaredLogger {
+	return _logger
+}
