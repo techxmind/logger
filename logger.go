@@ -38,7 +38,7 @@ func init() {
 	}
 
 	encoderCfg := zap.NewProductionEncoderConfig()
-	encoderCfg.TimeKey = ""
+	//encoderCfg.TimeKey = ""
 
 	_logger = zap.New(zapcore.NewCore(
 		zapcore.NewJSONEncoder(encoderCfg),
