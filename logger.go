@@ -13,7 +13,7 @@ import (
 
 var (
 	_atom    = zap.NewAtomicLevel()
-	_slogger *zap.SugaredLogger
+	_slogger Logger
 	_logger  *zap.Logger
 )
 
@@ -45,7 +45,53 @@ func init() {
 		zapcore.Lock(os.Stdout),
 		_atom,
 	))
-	_slogger = _logger.Sugar()
+	_slogger = &zapSugaredLoggerWrapper{
+		SugaredLogger: _logger.Sugar(),
+	}
+}
+
+type Logger interface {
+	Debug(args ...interface{})
+	Debugw(msg string, kvs ...interface{})
+	Debugf(msg string, args ...interface{})
+	Info(args ...interface{})
+	Infow(msg string, kvs ...interface{})
+	Infof(msg string, args ...interface{})
+	Warn(args ...interface{})
+	Warnw(msg string, kvs ...interface{})
+	Warnf(msg string, args ...interface{})
+	Error(args ...interface{})
+	Errorw(msg string, kvs ...interface{})
+	Errorf(msg string, args ...interface{})
+	DPanic(args ...interface{})
+	DPanicw(msg string, kvs ...interface{})
+	DPanicf(msg string, args ...interface{})
+	Panic(args ...interface{})
+	Panicw(msg string, kvs ...interface{})
+	Panicf(msg string, args ...interface{})
+	Fatal(args ...interface{})
+	Fatalw(msg string, kvs ...interface{})
+	Fatalf(msg string, args ...interface{})
+	Sync() error
+	Named(s string) Logger
+	With(args ...interface{}) Logger
+}
+
+// zapSugaredLoggerWrapper wraps zap.SugaredLogger to implements Logger interface
+type zapSugaredLoggerWrapper struct {
+	*zap.SugaredLogger
+}
+
+func (w *zapSugaredLoggerWrapper) With(args ...interface{}) Logger {
+	return &zapSugaredLoggerWrapper{
+		SugaredLogger: w.SugaredLogger.With(args...),
+	}
+}
+
+func (w *zapSugaredLoggerWrapper) Named(s string) Logger {
+	return &zapSugaredLoggerWrapper{
+		SugaredLogger: w.SugaredLogger.Named(s),
+	}
 }
 
 func Debug(args ...interface{}) {
@@ -132,11 +178,11 @@ func Fatalf(msg string, args ...interface{}) {
 	_slogger.Fatalf(msg, args...)
 }
 
-func Named(s string) *zap.SugaredLogger {
+func Named(s string) Logger {
 	return _slogger.Named(s)
 }
 
-func With(args ...interface{}) *zap.SugaredLogger {
+func With(args ...interface{}) Logger {
 	return _slogger.With(args...)
 }
 
@@ -144,10 +190,11 @@ func HttpHandler() http.Handler {
 	return _atom
 }
 
-func Sync() {
-	_slogger.Sync()
+func Sync() error {
+	return _slogger.Sync()
 }
 
-func Logger() *zap.Logger {
+// Zap returns zap logger
+func Zap() *zap.Logger {
 	return _logger
 }
